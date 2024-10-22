@@ -626,6 +626,8 @@ public interface IChatService
 ※ `_url` と `_apiKey` に別途お伝えした情報を入れるのを忘れないようにしてください。
 
 ```cs
+public class ChatService : IChatService
+{
     public List<Bot> GetBots()
     {
         return
@@ -642,6 +644,7 @@ public interface IChatService
     static readonly HttpClient _httpClient = new HttpClient();
     static readonly string _url = "";
     static readonly string _apiKey = "";
+
     public async Task<Message> SendRequestAsync(string userMessage, Bot bot)
     {
         var requestBody = new
@@ -695,6 +698,7 @@ public interface IChatService
             };
         }
     }
+}
 ```
 
 不足する using は IntelliSense で追加できます。  
@@ -830,17 +834,18 @@ View を作成していきましょう。`MainPage.xaml` を開きます。
 ```xml
     <StackLayout>
         <Label Text="Select a Bot"
-               FontSize="Large"
-               HorizontalOptions="Center" />
+            FontSize="Large"
+            HorizontalOptions="Center" />
 
-        <CollectionView
-            ItemsSource="{Binding Bots}"
+        <CollectionView ItemsSource="{Binding Bots}"
             SelectedItem="{Binding SelectedBot}"
             SelectionChangedCommand="{Binding BotSelectedCommand}"
             SelectionMode="Single">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="Model:Bot">
-                    <StackLayout Orientation="Horizontal" Padding="8" Spacing="20">
+                    <StackLayout Orientation="Horizontal"
+                        Padding="8"
+                        Spacing="20">
                         <Image Source="{Binding Icon}"
                             WidthRequest="40"
                             HeightRequest="40" />
@@ -1196,42 +1201,48 @@ public class BoolToVisibilityConverter : IValueConverter
 `Converter=` で先ほど作成したConverterが指定されています。
 
 ```xml
-<Grid Padding="10" RowDefinitions="*, Auto">
-    <RefreshView Command="{Binding RefreshClickedCommand}" IsRefreshing="{Binding IsRefreshing}">
-        <CollectionView Grid.Row="0" ItemsSource="{Binding ChatMessages}"
-                        SelectionMode="None">
+<Grid Padding="10"
+    RowDefinitions="*, Auto">
+    <RefreshView Command="{Binding RefreshClickedCommand}"
+        IsRefreshing="{Binding IsRefreshing}">
+        <CollectionView Grid.Row="0"
+            ItemsSource="{Binding ChatMessages}"
+            SelectionMode="None">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="model:Message">
                     <StackLayout Orientation="Horizontal"
-                                    HorizontalOptions="{Binding IsUserMessage, Converter={StaticResource BoolToHorizontalOptionsConverter}}">
+                        HorizontalOptions="{Binding IsUserMessage, Converter={StaticResource BoolToHorizontalOptionsConverter}}">
                         <Image Source="{Binding Icon}"
-                                WidthRequest="40"
-                                HeightRequest="40"
-                                Margin="5"
-                                IsVisible="{Binding IsUserMessage, Converter={StaticResource BoolToVisibilityConverter}}" />
+                            WidthRequest="40"
+                            HeightRequest="40"
+                            Margin="5"
+                            IsVisible="{Binding IsUserMessage, Converter={StaticResource BoolToVisibilityConverter}}" />
                         <Frame BackgroundColor="{Binding IsUserMessage, Converter={StaticResource BoolToColorConverter}}"
-                                CornerRadius="10"
-                                Padding="10"
-                                Margin="5"
-                                HasShadow="True"
-                                HorizontalOptions="StartAndExpand">
+                            CornerRadius="10"
+                            Padding="10"
+                            Margin="5"
+                            HasShadow="True"
+                            HorizontalOptions="StartAndExpand">
                             <Label Text="{Binding MessageText}"
-                                    FontSize="16"
-                                    TextColor="Black"/>
+                                FontSize="16"
+                                TextColor="Black" />
                         </Frame>
                     </StackLayout>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
     </RefreshView>
-    <Grid Grid.Row="1" ColumnDefinitions="*, Auto" Padding="10" x:Name="input">
+    <Grid Grid.Row="1"
+        ColumnDefinitions="*, Auto"
+        Padding="10"
+        x:Name="input">
         <Editor Text="{Binding MessageEntry}"
-                Placeholder="Enter a message"
-                Grid.Column="0"
-                AutoSize="TextChanges"/>
+            Placeholder="Enter a message"
+            Grid.Column="0"
+            AutoSize="TextChanges" />
         <Button Text="Send"
-                Command="{Binding SendClickedCommand}"
-                Grid.Column="1"/>
+            Command="{Binding SendClickedCommand}"
+            Grid.Column="1" />
     </Grid>
 </Grid>
 ```
@@ -1271,7 +1282,7 @@ public partial class AppShell : Shell
 `IChatService` の継承を追加し、実装を追加します。次のようになります。
 
 ```csharp
-class MockChatService : IChatService
+public class MockChatService : IChatService
 {
     public List<Bot> GetBots()
     {
